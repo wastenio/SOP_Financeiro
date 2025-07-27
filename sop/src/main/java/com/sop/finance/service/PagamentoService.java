@@ -1,7 +1,8 @@
 package com.sop.finance.service;
 
-import com.sop.finance.dto.PagamentoDTO;
 import java.util.List;
+
+import com.sop.finance.dto.PagamentoDTO;
 
 public interface PagamentoService {
     PagamentoDTO salvar(PagamentoDTO pagamentoDTO);
