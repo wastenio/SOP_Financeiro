@@ -20,5 +20,5 @@ public class PagamentoDTO {
     private String numeroPagamento;
     private LocalDate dataPagamento;
     private BigDecimal valorPago;
-    private Long empenhoId;
+    private Long empenhoId; // Referência para o Empenho associado
 }

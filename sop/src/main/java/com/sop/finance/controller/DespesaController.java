@@ -26,7 +26,8 @@ public class DespesaController {
 
     @GetMapping
     public ResponseEntity<List<DespesaDTO>> listarTodas() {
-        return ResponseEntity.ok(despesaService.listarTodas());
+    	List<DespesaDTO> despesas = despesaService.listarTodas();
+        return ResponseEntity.ok(despesas);
     }
 
     @GetMapping("/{id}")

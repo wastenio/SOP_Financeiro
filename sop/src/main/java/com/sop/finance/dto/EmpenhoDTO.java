@@ -20,5 +20,8 @@ public class EmpenhoDTO {
     private String numeroEmpenho;
     private LocalDate dataEmpenho;
     private BigDecimal valorEmpenhado;
-    private Long despesaId;
+    private Long despesaId; // ID da despesa associada
+
+    // Lista de pagamentos relacionados ao empenho (opcional: pode ser incluída futuramente)
+    // private List<PagamentoDTO> pagamentos; 
 }
