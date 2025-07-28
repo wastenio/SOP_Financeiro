@@ -134,4 +134,4 @@ ou
 
 ## 🧑‍💻 Autor
 
-Desenvolvido por [Seu Nome] para o projeto SOP Financeiro.
+Desenvolvido por Wastenio da Silva Rocha para o projeto SOP Financeiro.
