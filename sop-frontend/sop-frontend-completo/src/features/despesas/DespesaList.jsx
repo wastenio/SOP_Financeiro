@@ -1,27 +1,33 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchDespesas, deleteDespesa } from './despesaSlice';
-
-const DespesaList = () => {
-  const dispatch = useDispatch();
-  const despesas = useSelector(state => state.despesas.items);
-
-  useEffect(() => {
-    dispatch(fetchDespesas());
-  }, [dispatch]);
-
+const DespesaList = ({ despesas }) => {
   return (
-    <div>
-      <h3>Lista de Despesas</h3>
-      <ul>
-        {despesas.map(d => (
-          <li key={d.id}>
-            {d.numeroProtocolo} - {d.tipoDespesa} - {d.dataProtocolo} → {d.dataVencimento}
-            <button onClick={() => dispatch(deleteDespesa(d.id))}>Excluir</button>
-          </li>
+    <table className="table table-striped">
+      <thead>
+        <tr>
+          <th>Credor</th>
+          <th>Data Protocolo</th>
+          <th>Data Vencimento</th>
+          <th>Descrição</th>
+          <th>Número Protocolo</th>
+          <th>Status</th>
+          <th>Tipo Despesa</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        {despesas.map(despesa => (
+          <tr key={despesa.id}>
+            <td>{despesa.credor}</td>
+            <td>{new Date(despesa.dataProtocolo).toLocaleString()}</td>
+            <td>{new Date(despesa.dataVencimento).toLocaleDateString()}</td>
+            <td>{despesa.descricao}</td>
+            <td>{despesa.numeroProtocolo}</td>
+            <td>{despesa.status}</td>
+            <td>{despesa.tipoDespesa}</td>
+            <td>{despesa.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+          </tr>
         ))}
-      </ul>
-    </div>
+      </tbody>
+    </table>
   );
 };
 

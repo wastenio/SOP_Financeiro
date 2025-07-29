@@ -5,8 +5,9 @@ import axios from 'axios';
 
 const PagamentoForm = () => {
   const dispatch = useDispatch();
-  const [empenhos, setEmpenhos] = useState([]);
+  const { status, error } = useSelector((state) => state.pagamentos);
 
+  const [empenhos, setEmpenhos] = useState([]);
   const [form, setForm] = useState({
     numeroPagamento: '',
     dataPagamento: '',
@@ -14,35 +15,58 @@ const PagamentoForm = () => {
     empenho: '',
   });
 
+  const [successMsg, setSuccessMsg] = useState('');
+
   useEffect(() => {
-    axios.get('http://localhost:8080/api/empenhos')
-      .then(res => setEmpenhos(res.data))
-      .catch(err => console.error('Erro ao carregar empenhos:', err));
+    const fetchEmpenhos = async () => {
+      try {
+        const res = await axios.get('http://localhost:8080/api/empenhos');
+        setEmpenhos(res.data);
+      } catch (err) {
+        console.error('Erro ao carregar empenhos:', err);
+      }
+    };
+    fetchEmpenhos();
   }, []);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setSuccessMsg('');
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSuccessMsg('');
     const payload = {
       ...form,
       valorPago: parseFloat(form.valorPago),
-      empenho: { id: parseInt(form.empenho) }
+      empenho: { id: parseInt(form.empenho, 10) },
     };
-    await dispatch(addPagamento(payload));
-    await dispatch(fetchPagamentos());
-    setForm({
-      numeroPagamento: '',
-      dataPagamento: '',
-      valorPago: '',
-      empenho: '',
-    });
+
+    try {
+      const resultAction = await dispatch(addPagamento(payload));
+      if (addPagamento.fulfilled.match(resultAction)) {
+        setSuccessMsg('Pagamento salvo com sucesso!');
+        setForm({
+          numeroPagamento: '',
+          dataPagamento: '',
+          valorPago: '',
+          empenho: '',
+        });
+        dispatch(fetchPagamentos());
+      }
+    } catch {
+      // Erro já tratado no slice, não precisa fazer nada aqui
+    }
   };
+
+  const isLoading = status === 'loading';
 
   return (
     <form onSubmit={handleSubmit} style={{ marginBottom: '1rem' }}>
+      {error && <div className="alert alert-danger">{error}</div>}
+      {successMsg && <div className="alert alert-success">{successMsg}</div>}
+
       <input
         type="text"
         name="numeroPagamento"
@@ -50,6 +74,7 @@ const PagamentoForm = () => {
         onChange={handleChange}
         placeholder="Número do Pagamento"
         required
+        disabled={isLoading}
       />
       <input
         type="date"
@@ -57,6 +82,7 @@ const PagamentoForm = () => {
         value={form.dataPagamento}
         onChange={handleChange}
         required
+        disabled={isLoading}
       />
       <input
         type="number"
@@ -66,21 +92,25 @@ const PagamentoForm = () => {
         onChange={handleChange}
         placeholder="Valor Pago"
         required
+        disabled={isLoading}
       />
       <select
         name="empenho"
         value={form.empenho}
         onChange={handleChange}
         required
+        disabled={isLoading}
       >
         <option value="">Selecione um Empenho</option>
-        {empenhos.map(e => (
+        {empenhos.map((e) => (
           <option key={e.id} value={e.id}>
             {e.numeroEmpenho} - R$ {e.valorEmpenhado}
           </option>
         ))}
       </select>
-      <button type="submit">Salvar Pagamento</button>
+      <button type="submit" disabled={isLoading}>
+        {isLoading ? 'Salvando...' : 'Salvar Pagamento'}
+      </button>
     </form>
   );
 };

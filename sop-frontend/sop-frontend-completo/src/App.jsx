@@ -3,7 +3,9 @@ import HomePage from './pages/HomePage';
 import DespesasPage from './pages/DespesasPage';
 import EmpenhosPage from './pages/EmpenhosPage';
 import PagamentosPage from './pages/PagamentosPage';
+import LoginPage from './pages/LoginPage';
 import Navbar from './components/Navbar';
+import ProtectedRoute from './features/auth/ProtectedRoute';
 import React from 'react';
 
 function App() {
@@ -12,10 +14,34 @@ function App() {
       <Navbar />
       <div style={{ padding: '20px' }}>
         <Routes>
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<HomePage />} />
-          <Route path="/despesas" element={<DespesasPage />} />
-          <Route path="/empenhos" element={<EmpenhosPage />} />
-          <Route path="/pagamentos" element={<PagamentosPage />} />
+
+          {/* Rotas protegidas */}
+          <Route
+            path="/despesas"
+            element={
+              <ProtectedRoute>
+                <DespesasPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/empenhos"
+            element={
+              <ProtectedRoute>
+                <EmpenhosPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pagamentos"
+            element={
+              <ProtectedRoute>
+                <PagamentosPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </Router>
