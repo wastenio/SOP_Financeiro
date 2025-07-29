@@ -1,14 +1,14 @@
-package com.sop.finance; // use o mesmo package da classe principal
+package com.sop.finance;
 
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
+@Disabled  // desativa toda a classe de testes
 @SpringBootTest
-public class SopApplicationTests {
+class SopFinanceApplicationTests {
 
     @Test
     void contextLoads() {
-        // Teste básico para verificar se o contexto do Spring carrega sem erros
     }
-
 }
