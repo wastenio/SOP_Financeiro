@@ -4,6 +4,7 @@ import DespesasPage from './pages/DespesasPage';
 import EmpenhosPage from './pages/EmpenhosPage';
 import PagamentosPage from './pages/PagamentosPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';  // <-- IMPORTAÇÃO FALTANDO
 import Navbar from './components/Navbar';
 import ProtectedRoute from './features/auth/ProtectedRoute';
 import React from 'react';
@@ -14,6 +15,7 @@ function App() {
       <Navbar />
       <div style={{ padding: '20px' }}>
         <Routes>
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<HomePage />} />
 

@@ -8,23 +8,21 @@ import com.sop.finance.entity.Usuario;
 @Component
 public class UsuarioMapper {
 
-    public UsuarioDTO toDto(Usuario usuario) {
-        if (usuario == null) return null;
-        // Não retorna senha por segurança
-        return new UsuarioDTO(
-            usuario.getId(),
-            usuario.getUserName(),
-            null,
-            usuario.getEmail()
-        );
-    }
+	public UsuarioDTO toDto(Usuario usuario) {
+	    UsuarioDTO dto = new UsuarioDTO();
+	    dto.setId(usuario.getId());
+	    dto.setUserName(usuario.getUserName());
+	    dto.setPassword(usuario.getPassword());
+	    dto.setEmail(usuario.getEmail());
+	    return dto;
+	}
+
 
     public Usuario toEntity(UsuarioDTO dto) {
-        if (dto == null) return null;
         Usuario usuario = new Usuario();
         usuario.setId(dto.getId());
         usuario.setUserName(dto.getUserName());
-        usuario.setPassword(dto.getPassword());  // senha ainda não codificada
+        usuario.setPassword(dto.getPassword());
         usuario.setEmail(dto.getEmail());
         return usuario;
     }

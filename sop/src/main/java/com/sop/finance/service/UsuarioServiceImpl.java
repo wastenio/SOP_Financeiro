@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.sop.finance.dto.UsuarioDTO;
 import com.sop.finance.entity.Usuario;
+import com.sop.finance.exception.UsuarioNotFoundException;
 import com.sop.finance.mapper.UsuarioMapper;
 import com.sop.finance.repository.UsuarioRepository;
-import com.sop.finance.exception.UsuarioNotFoundException;
 
 
 @Service
@@ -21,25 +21,44 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper,
-                              PasswordEncoder passwordEncoder) {
+//    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper,
+//                              PasswordEncoder passwordEncoder) {
+//        this.usuarioRepository = usuarioRepository;
+//        this.usuarioMapper = usuarioMapper;
+//        this.passwordEncoder = passwordEncoder;
+//    }
+    
+    public UsuarioServiceImpl(
+            UsuarioRepository usuarioRepository,
+            UsuarioMapper usuarioMapper,
+            PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioMapper = usuarioMapper;
         this.passwordEncoder = passwordEncoder;
     }
 
+//    @Override
+//    public UsuarioDTO save(UsuarioDTO usuarioDTO) {
+//        Usuario usuario = usuarioMapper.toEntity(usuarioDTO);
+//        usuario.setPassword(passwordEncoder.encode(usuarioDTO.getPassword())); // criptografa senha
+//        Usuario saved = usuarioRepository.save(usuario);
+//        return usuarioMapper.toDto(saved);
+//    }
+    
     @Override
-    public UsuarioDTO save(UsuarioDTO usuarioDTO) {
-        Usuario usuario = usuarioMapper.toEntity(usuarioDTO);
-        usuario.setPassword(passwordEncoder.encode(usuarioDTO.getPassword())); // criptografa senha
-        Usuario saved = usuarioRepository.save(usuario);
+    public UsuarioDTO save(UsuarioDTO dto) {
+        Usuario entity = usuarioMapper.toEntity(dto);
+        // Criptografar a senha aqui:
+        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+        Usuario saved = usuarioRepository.save(entity);
         return usuarioMapper.toDto(saved);
     }
+
 
     @Override
     public Optional<UsuarioDTO> findByUsername(String username) {
         return usuarioRepository.findByUserName(username)
-                .map(usuarioMapper::toDto);
+        		.map(usuarioMapper::toDto);
     }
 
     @Override

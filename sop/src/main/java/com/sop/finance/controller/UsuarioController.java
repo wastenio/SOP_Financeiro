@@ -14,6 +14,7 @@ import com.sop.finance.service.UsuarioService;
 
 @RestController
 @RequestMapping("/api/usuario")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -21,7 +22,7 @@ public class UsuarioController {
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
-
+    
     // Criar usuário (registro)
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UsuarioDTO usuarioDTO) {
