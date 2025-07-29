@@ -10,22 +10,25 @@ Este projeto é o backend da aplicação **SOP Financeiro**, desenvolvido em **J
 - Java 17
 - Spring Boot
 - Spring Data JPA
-- Banco de dados relacional (PostgreSQL ou outro)
+- Spring Security (autenticação e criptografia de senhas)
+- Banco de dados relacional (PostgreSQL)
 - Maven ou Gradle
 - Postman (para testes de API)
 - Swagger (documentação da API)
 - Lombok
+- MapStruct (para conversão entre entidades e DTOs)
 
 ---
 
 ## 📁 Estrutura do Projeto
 
-- `controller`: Camada responsável por expor os endpoints REST.
-- `service`: Contém as regras de negócio da aplicação.
-- `repository`: Interface com o banco de dados usando Spring Data JPA.
-- `model`: Entidades mapeadas com JPA.
-- `dto`: Objetos de transferência de dados para entrada/saída.
-- `config`: Configurações globais da aplicação.
+- `controller/` - Camada responsável por expor os endpoints REST.
+- `service/` - Camada onde estão as regras de negócio.
+- `repository/` - Interfaces que interagem com o banco usando Spring Data JPA.
+- `model/` - Entidades JPA que representam as tabelas no banco.
+- `dto/` - Objetos de transferência de dados usados para comunicação entre camadas.
+- `mapper/` - Conversores entre entidades e DTOs.
+- `config/` - Configurações globais, como segurança e CORS.
 
 ---
 
@@ -35,22 +38,56 @@ Este projeto é o backend da aplicação **SOP Financeiro**, desenvolvido em **J
 
 A aplicação permite o **CRUD completo** de despesas, com os seguintes campos:
 
-- `numeroProtocolo`: Número identificador único da despesa.
-- `tipoDespesa`: Tipo da despesa (Obra de Edificação, Obra de Rodovias, Outros).
-- `dataProtocolo`: Data em que a despesa foi protocolada.
+- `numeroProtocolo`: Identificador único da despesa.
+- `tipoDespesa`: Obra de Edificação, Obra de Rodovias, Outros.
+- `dataProtocolo`: Data de protocolo da despesa.
 - `dataVencimento`: Data de vencimento.
 - `credor`: Nome do credor.
-- `descricao`: Descrição detalhada da despesa.
-- `valor`: Valor monetário.
+- `descricao`: Detalhes da despesa.
+- `valor`: Valor da despesa.
 - `status`: Pendente, Pago, Cancelado, etc.
 
 ---
 
-## 🔐 Autenticação
+## 🔐 Autenticação e Segurança
 
-Autenticação do tipo **Basic Auth** é usada nos endpoints, com usuário `user` e senha gerada dinamicamente.
+A autenticação foi implementada com **login via nome de usuário e senha (customizado)**. As senhas são **criptografadas com BCrypt** no momento do cadastro.
 
----
+- O campo `password` no DTO é tratado como `WRITE_ONLY`, ou seja:
+- Pode ser enviado nas requisições.
+- **Não é exibido nas respostas JSON**, garantindo segurança.
+
+## 👤 Cadastro e Login de Usuário
+
+### ✅ Cadastro de Usuário
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "userName": "seu_usuario",
+  "password": "sua_senha",
+  "email": "seu_email"
+}
+
+- A senha é automaticamente criptografada antes de ser salva.
+- A resposta não retorna o campo password (por segurança).
+```
+## 🔐 Login de Usuário
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "userName": "seu_usuario",
+  "password": "sua_senha"
+}
+
+- O sistema verifica se o usuário existe e se a senha está correta.
+- Se autenticado, retorna status 200 OK e os dados do usuário autenticado.
+
+```
 
 ## 🧪 Testes via Postman
 
@@ -134,4 +171,6 @@ ou
 
 ## 🧑‍💻 Autor
 
-Desenvolvido por Wastenio da Silva Rocha para o projeto SOP Financeiro.
+Desenvolvido por Wastenio da Silva Rocha
+Projeto profissional: SOP Financeiro
+Contato: wastenio.silva@gmail.com
