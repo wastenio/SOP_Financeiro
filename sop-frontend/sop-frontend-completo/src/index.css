@@ -1,0 +1,36 @@
+/* Estilos básicos globais */
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+nav {
+  background-color: #eee;
+  padding: 10px;
+}
+
+nav a {
+  margin-right: 15px;
+  font-weight: 600;
+}
+
+.container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 10px;
+  background: white;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  border-radius: 6px;
+}

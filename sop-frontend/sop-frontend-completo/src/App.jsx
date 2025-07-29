@@ -1,22 +1,25 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import DespesasPage from './pages/DespesasPage';
+import EmpenhosPage from './pages/EmpenhosPage';
+import PagamentosPage from './pages/PagamentosPage';
+import Navbar from './components/Navbar';
 import React from 'react';
-import DespesaForm from './components/DespesaForm';
-import DespesaList from './components/DespesaList';
-import axios from 'axios';
 
-const App = () => {
-  const handleSubmit = (form) => {
-    axios.post('http://localhost:8080/despesas', form)
-      .then(res => alert("Despesa salva!"))
-      .catch(err => alert("Erro ao salvar despesa"));
-  };
-
+function App() {
   return (
-    <div>
-      <h1>Sistema de Despesas</h1>
-      <DespesaForm onSubmit={handleSubmit} />
-      <DespesaList />
-    </div>
+    <Router>
+      <Navbar />
+      <div style={{ padding: '20px' }}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/despesas" element={<DespesasPage />} />
+          <Route path="/empenhos" element={<EmpenhosPage />} />
+          <Route path="/pagamentos" element={<PagamentosPage />} />
+        </Routes>
+      </div>
+    </Router>
   );
-};
+}
 
 export default App;
