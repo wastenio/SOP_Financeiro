@@ -1,7 +1,7 @@
 package com.sop.finance.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -18,38 +18,37 @@ import lombok.RequiredArgsConstructor;
 public class DespesaServiceImpl implements DespesaService {
 
 	private final DespesaRepository despesaRepository;
-    private final DespesaMapper despesaMapper;
 
     @Override
-    public DespesaDTO salvar(DespesaDTO dto) {
+    public Despesa salvar(DespesaDTO dto) {
         // Verifica se o número de protocolo já existe
         if (despesaRepository.existsByNumeroProtocolo(dto.getNumeroProtocolo())) {
             throw new IllegalArgumentException("Já existe uma despesa com esse número de protocolo.");
         }
 
-        Despesa despesa = despesaMapper.toEntity(dto);
-        return despesaMapper.toDTO(despesaRepository.save(despesa));
+        Despesa despesa = DespesaMapper.toEntity(dto);
+        
+        return despesaRepository.save(despesa);
+	
     }
-
+    
     @Override
-    public List<DespesaDTO> listarTodas() {
-        return despesaRepository.findAll().stream()
-                .map(despesaMapper::toDTO)
-                .collect(Collectors.toList());
-    }
+    public List<Despesa> listarTodas() {
+        return despesaRepository.findAll();
+     }
+    
+	@Override
+	public Optional<Despesa> buscarPorId(Long id) {
+		Optional<Despesa> despesa = despesaRepository.findById(id);
+		return despesa;
+	}
 
-    @Override
-    public DespesaDTO buscarPorId(Long id) {
-        Despesa despesa = despesaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Despesa não encontrada com id: " + id));
-        return despesaMapper.toDTO(despesa);
-    }
-
-    @Override
+	@Override
     public void deletar(Long id) {
         if (!despesaRepository.existsById(id)) {
             throw new ResourceNotFoundException("Despesa não encontrada para exclusão.");
         }
         despesaRepository.deleteById(id);
     }
+
 }

@@ -1,7 +1,7 @@
 package com.sop.finance.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -21,32 +21,31 @@ public class EmpenhoServiceImpl implements EmpenhoService {
 
     private final EmpenhoRepository empenhoRepository;
     private final DespesaRepository despesaRepository;
-    private final EmpenhoMapper empenhoMapper;
 
     @Override
-    public EmpenhoDTO salvar(EmpenhoDTO dto) {
-        // Verifica se a despesa referenciada existe
-        Despesa despesa = despesaRepository.findById(dto.getDespesaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Despesa não encontrada com id: " + dto.getDespesaId()));
+    public Empenho salvar(EmpenhoDTO dto) {
+        Despesa despesa = despesaRepository.findById(dto.getDespesa().getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Despesa não encontrada com o ID: " + dto.getDespesa().getId()));
 
-        Empenho empenho = empenhoMapper.toEntity(dto);
-        empenho.setDespesa(despesa); // associa a despesa
+        Empenho empenho = EmpenhoMapper.toEntity(dto);
 
-        return empenhoMapper.toDTO(empenhoRepository.save(empenho));
+        // Associa o empenho à despesa via método auxiliar, para manter a lista sincronizada
+        despesa.addEmpenho(empenho);
+
+        // Salva a despesa — devido ao cascade, o empenho será salvo também
+        despesaRepository.save(despesa);
+
+        return empenho;
     }
 
     @Override
-    public List<EmpenhoDTO> listarTodos() {
-        return empenhoRepository.findAll().stream()
-                .map(empenhoMapper::toDTO)
-                .collect(Collectors.toList());
+    public List<Empenho> listarTodos() {
+        return empenhoRepository.findAll();
     }
 
     @Override
-    public EmpenhoDTO buscarPorId(Long id) {
-        Empenho empenho = empenhoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Empenho não encontrado com id: " + id));
-        return empenhoMapper.toDTO(empenho);
+    public Optional<Empenho> buscarPorId(Long id) {
+        return empenhoRepository.findById(id);
     }
 
     @Override

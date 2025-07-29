@@ -3,6 +3,7 @@ package com.sop.finance.entity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -29,32 +30,44 @@ public class Despesa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "credor", nullable = false)
+    private String credor;
+    
+    @Column(name = "data_protocolo", nullable = false)
+    private LocalDateTime dataProtocolo;
+    
+    @Column(name = "data_vencimento", nullable = false)
+    private LocalDate dataVencimento;
+    
+    @Column(name = "descricao", nullable = false)
+    private String descricao;
 
     @Column(name = "numero_protocolo", nullable = false, unique = true)
     private String numeroProtocolo;
+    
+    @Column(name = "status", nullable = false)
+    private String status;
 
     @Column(name = "tipo_despesa", nullable = false)
     private String tipoDespesa;
 
-    @Column(name = "data_protocolo", nullable = false)
-    private LocalDateTime dataProtocolo;
-
-    @Column(name = "data_vencimento", nullable = false)
-    private LocalDate dataVencimento;
-
-    @Column(nullable = false)
-    private String credor;
-
-    @Column(nullable = false)
-    private String descricao;
-
-    @Column(nullable = false)
+    @Column(name = "valor", nullable = false)
     private BigDecimal valor;
-
-    @Column
-    private String status;
-
-    // Uma Despesa pode ter vários Empenhos
+    
+    // Inicializa a lista para evitar NullPointerException
     @OneToMany(mappedBy = "despesa", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Empenho> empenhos;
+    private List<Empenho> empenhos = new ArrayList<>();
+
+    // Adiciona um empenho e mantém o relacionamento bidirecional
+    public void addEmpenho(Empenho empenho) {
+        empenhos.add(empenho);
+        empenho.setDespesa(this);
+    }
+
+    // Remove um empenho e mantém o relacionamento bidirecional
+    public void removeEmpenho(Empenho empenho) {
+        empenhos.remove(empenho);
+        empenho.setDespesa(null);
+    }
 }

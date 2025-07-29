@@ -1,7 +1,9 @@
 package com.sop.finance.controller;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sop.finance.dto.DespesaDTO;
+import com.sop.finance.entity.Despesa;
 import com.sop.finance.service.DespesaService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,35 +25,35 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DespesaController {
 
-    private final DespesaService despesaService;
+	private final DespesaService despesaService;
+	
+	@GetMapping
+	public ResponseEntity<List<Despesa>> listarTodas() {
+		List<Despesa> despesas = despesaService.listarTodas();
+		return ResponseEntity.ok(despesas);
+	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<Optional<Despesa>> buscarPorId(@PathVariable Long id) {
+		return ResponseEntity.ok(despesaService.buscarPorId(id));
+	}
 
-    @GetMapping
-    public ResponseEntity<List<DespesaDTO>> listarTodas() {
-    	List<DespesaDTO> despesas = despesaService.listarTodas();
-        return ResponseEntity.ok(despesas);
-    }
+	@PostMapping
+	public ResponseEntity<Despesa> criar(@RequestBody DespesaDTO dto) {
+		Despesa despesaSalva = despesaService.salvar(dto);
+		return ResponseEntity.status(HttpStatus.CREATED).body(despesaSalva);
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<DespesaDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(despesaService.buscarPorId(id));
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<Despesa> atualizar(@PathVariable Long id, @RequestBody DespesaDTO dto) {
+		dto.setId(id);
+		Despesa despesaAtualizada = despesaService.salvar(dto);
+		return ResponseEntity.ok(despesaAtualizada);
+	}
 
-    @PostMapping
-    public ResponseEntity<DespesaDTO> criar(@RequestBody DespesaDTO dto) {
-        DespesaDTO despesaSalva = despesaService.salvar(dto);
-        return ResponseEntity.ok(despesaSalva);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<DespesaDTO> atualizar(@PathVariable Long id, @RequestBody DespesaDTO dto) {
-        dto.setId(id);
-        DespesaDTO despesaAtualizada = despesaService.salvar(dto);
-        return ResponseEntity.ok(despesaAtualizada);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        despesaService.deletar(id);
-        return ResponseEntity.noContent().build();
-    }
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deletar(@PathVariable Long id) {
+		despesaService.deletar(id);
+		return ResponseEntity.noContent().build();
+	}
 }

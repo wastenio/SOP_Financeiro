@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "pagamento")
-@Data
 @NoArgsConstructor
+@Data
 @AllArgsConstructor
 @Builder
 public class Pagamento {

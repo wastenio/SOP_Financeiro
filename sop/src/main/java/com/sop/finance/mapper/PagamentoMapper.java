@@ -1,16 +1,26 @@
 package com.sop.finance.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
-
 import com.sop.finance.dto.PagamentoDTO;
 import com.sop.finance.entity.Pagamento;
 
-@Mapper(componentModel = "spring")
-public interface PagamentoMapper {
-    PagamentoMapper INSTANCE = Mappers.getMapper(PagamentoMapper.class);
+public class PagamentoMapper {
 
-    PagamentoDTO toDTO(Pagamento pagamento);
+    public static Pagamento toEntity(PagamentoDTO dto) {
+        return Pagamento.builder()
+                .id(dto.getId())
+                .numeroPagamento(dto.getNumeroPagamento())
+                .dataPagamento(dto.getDataPagamento())
+                .valorPago(dto.getValorPago())
+                .build();
+    }
 
-    Pagamento toEntity(PagamentoDTO pagamentoDTO);
+    public static PagamentoDTO toDTO(Pagamento entity) {
+        return PagamentoDTO.builder()
+                .id(entity.getId())
+                .numeroPagamento(entity.getNumeroPagamento())
+                .dataPagamento(entity.getDataPagamento())
+                .valorPago(entity.getValorPago())
+                .empenho(entity.getEmpenho().getId())
+                .build();
+    }
 }

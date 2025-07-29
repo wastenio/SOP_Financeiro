@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.sop.finance.entity.Empenho;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,5 +42,5 @@ public class DespesaDTO {
     private BigDecimal valor;
 
     // Por enquanto pode ser uma lista genérica, ou substitua quando criar EmpenhoDTO
-    private List<Object> empenhos;
+    private List<Empenho> empenhos;
 }

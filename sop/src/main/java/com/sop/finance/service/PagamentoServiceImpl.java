@@ -21,24 +21,23 @@ public class PagamentoServiceImpl implements PagamentoService {
 
     private final PagamentoRepository pagamentoRepository;
     private final EmpenhoRepository empenhoRepository;
-    private final PagamentoMapper pagamentoMapper;
 
     @Override
     public PagamentoDTO salvar(PagamentoDTO dto) {
-        // Verifica se o empenho referenciado existe
-        Empenho empenho = empenhoRepository.findById(dto.getEmpenhoId())
-                .orElseThrow(() -> new ResourceNotFoundException("Empenho não encontrado com id: " + dto.getEmpenhoId()));
+        // Busca o Empenho associado
+    	Empenho empenho = empenhoRepository.findById(dto.getEmpenho())
+                .orElseThrow(() -> new ResourceNotFoundException("Empenho não encontrado com id: " + dto.getEmpenho()));
 
-        Pagamento pagamento = pagamentoMapper.toEntity(dto);
-        pagamento.setEmpenho(empenho); // associa o empenho
+        Pagamento pagamento = PagamentoMapper.toEntity(dto);
+        pagamento.setEmpenho(empenho);
 
-        return pagamentoMapper.toDTO(pagamentoRepository.save(pagamento));
+        return PagamentoMapper.toDTO(pagamentoRepository.save(pagamento));
     }
 
     @Override
     public List<PagamentoDTO> listarTodos() {
         return pagamentoRepository.findAll().stream()
-                .map(pagamentoMapper::toDTO)
+                .map(PagamentoMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -46,7 +45,7 @@ public class PagamentoServiceImpl implements PagamentoService {
     public PagamentoDTO buscarPorId(Long id) {
         Pagamento pagamento = pagamentoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado com id: " + id));
-        return pagamentoMapper.toDTO(pagamento);
+        return PagamentoMapper.toDTO(pagamento);
     }
 
     @Override
