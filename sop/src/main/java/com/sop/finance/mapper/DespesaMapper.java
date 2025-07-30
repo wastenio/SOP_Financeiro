@@ -8,9 +8,6 @@ import com.sop.finance.entity.Despesa;
 
 @Mapper(componentModel = "spring")
 public interface DespesaMapper {
-
-//	DespesaDTO toDTO(Despesa entity);
-//	Despesa toEntity(DespesaDTO dto);
 	
 	public static DespesaDTO toDTO(Despesa despesa) {
 		

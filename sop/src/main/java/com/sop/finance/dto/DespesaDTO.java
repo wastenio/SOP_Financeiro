@@ -25,7 +25,7 @@ public class DespesaDTO {
     
     private String credor;
     
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dataProtocolo;
     
     @JsonFormat(pattern = "yyyy-MM-dd")

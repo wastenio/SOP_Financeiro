@@ -1,5 +1,6 @@
 package com.sop.finance.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,15 +25,31 @@ public class PagamentoServiceImpl implements PagamentoService {
 
     @Override
     public PagamentoDTO salvar(PagamentoDTO dto) {
-        // Busca o Empenho associado
-    	Empenho empenho = empenhoRepository.findById(dto.getEmpenho())
+        // Verifica se o número de pagamento já existe
+        if (pagamentoRepository.existsByNumeroPagamento(dto.getNumeroPagamento())) {
+            throw new IllegalArgumentException("Já existe um pagamento com esse número.");
+        }
+
+        // Busca o empenho associado
+        Empenho empenho = empenhoRepository.findById(dto.getEmpenho())
                 .orElseThrow(() -> new ResourceNotFoundException("Empenho não encontrado com id: " + dto.getEmpenho()));
+
+        // Soma dos pagamentos já feitos no empenho
+        BigDecimal somaPagamentosExistentes = empenho.getPagamentos().stream()
+            .map(pag -> pag.getValorPago())
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Verifica se o novo pagamento ultrapassaria o valor do empenho
+        if (somaPagamentosExistentes.add(dto.getValorPago()).compareTo(empenho.getValorEmpenhado()) > 0) {
+            throw new IllegalArgumentException("A soma dos pagamentos não pode ultrapassar o valor do empenho.");
+        }
 
         Pagamento pagamento = PagamentoMapper.toEntity(dto);
         pagamento.setEmpenho(empenho);
 
         return PagamentoMapper.toDTO(pagamentoRepository.save(pagamento));
     }
+
 
     @Override
     public List<PagamentoDTO> listarTodos() {
@@ -55,4 +72,5 @@ public class PagamentoServiceImpl implements PagamentoService {
         }
         pagamentoRepository.deleteById(id);
     }
+
 }
