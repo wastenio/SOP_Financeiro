@@ -1,11 +1,27 @@
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import EmpenhoForm from '../features/empenhos/EmpenhoForm';
 import EmpenhoList from '../features/empenhos/EmpenhoList';
-import { useSelector } from 'react-redux';
+import { fetchEmpenhos } from '../features/empenhos/empenhoSlice';
+import { toast } from 'react-toastify';
 
 const EmpenhosPage = () => {
-  const { status, error } = useSelector((state) => state.empenhos);
+  const dispatch = useDispatch();
+  const { items: empenhos, status, error } = useSelector((state) => state.empenhos);
 
   const isLoading = status === 'loading';
+
+  useEffect(() => {
+    if (status === 'idle') {
+      dispatch(fetchEmpenhos());
+    }
+  }, [dispatch, status]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   return (
     <div className="container my-5">
@@ -13,7 +29,7 @@ const EmpenhosPage = () => {
 
       {isLoading && (
         <div className="text-center my-3">
-          <div className="spinner-border text-primary" role="status" />
+          <div className="spinner-border text-primary" role="status" aria-label="Carregando empenhos" />
           <span className="ms-2">Carregando empenhos...</span>
         </div>
       )}
@@ -38,7 +54,11 @@ const EmpenhosPage = () => {
           <div className="card shadow-sm h-100">
             <div className="card-body">
               <h5 className="card-title">Empenhos Cadastrados</h5>
-              <EmpenhoList isLoading={isLoading} error={error} />
+              {empenhos.length === 0 && !isLoading ? (
+                <p className="text-center">Nenhum empenho cadastrado.</p>
+              ) : (
+                <EmpenhoList empenhos={empenhos} isLoading={isLoading} error={error} />
+              )}
             </div>
           </div>
         </div>

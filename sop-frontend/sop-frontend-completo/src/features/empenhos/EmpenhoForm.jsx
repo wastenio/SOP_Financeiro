@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addEmpenho, fetchEmpenhos } from './empenhoSlice';
 import axios from 'axios';
 
-const EmpenhoForm = (isLoading ) => {
+
+const EmpenhoForm = ({ isLoading }) => {
   const dispatch = useDispatch();
-  const { status, error } = useSelector((state) => state.empenhos);
+  const { error, status } = useSelector((state) => state.empenhos);
 
   const [despesas, setDespesas] = useState([]);
   const [form, setForm] = useState({
@@ -35,6 +36,13 @@ const EmpenhoForm = (isLoading ) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccessMsg('');
+
+    // Validação simples
+    if (parseFloat(form.valorEmpenhado) <= 0) {
+      alert('Valor Empenhado deve ser maior que zero');
+      return;
+    }
+
     const payload = {
       ...form,
       valorEmpenhado: parseFloat(form.valorEmpenhado),
@@ -53,12 +61,11 @@ const EmpenhoForm = (isLoading ) => {
           valorEmpenhado: '',
           despesa: '',
         });
-        dispatch(fetchEmpenhos()); // Atualiza lista após sucesso
-      } else {
-        setSuccessMsg('');
+        dispatch(fetchEmpenhos());
+        setTimeout(() => setSuccessMsg(''), 3000); // limpa msg depois de 3s
       }
     } catch {
-      // erro já tratado no slice, pode deixar vazio
+      // erro já tratado no slice
     }
   };
 
@@ -67,48 +74,72 @@ const EmpenhoForm = (isLoading ) => {
       {error && <div className="alert alert-danger">{error}</div>}
       {successMsg && <div className="alert alert-success">{successMsg}</div>}
 
-      <input
-        type="text"
-        name="numeroEmpenho"
-        value={form.numeroEmpenho}
-        onChange={handleChange}
-        placeholder="Número do Empenho"
-        required
-        disabled={isLoading}
-      />
-      <input
-        type="date"
-        name="dataEmpenho"
-        value={form.dataEmpenho}
-        onChange={handleChange}
-        required
-        disabled={isLoading}
-      />
-      <input
-        type="number"
-        step="0.01"
-        name="valorEmpenhado"
-        value={form.valorEmpenhado}
-        onChange={handleChange}
-        placeholder="Valor Empenhado"
-        required
-        disabled={isLoading}
-      />
-      <select
-        name="despesa"
-        value={form.despesa}
-        onChange={handleChange}
-        required
-        disabled={isLoading}
-      >
-        <option value="">Selecione uma Despesa</option>
-        {despesas.map((d) => (
-          <option key={d.id} value={d.id}>
-            {d.numeroProtocolo} - {d.tipoDespesa}
-          </option>
-        ))}
-      </select>
-      <button type="submit" disabled={isLoading}>
+      <div className="mb-3">
+        <label htmlFor="numeroEmpenho" className="form-label">Número do Empenho</label>
+        <input
+          type="text"
+          id="numeroEmpenho"
+          name="numeroEmpenho"
+          className="form-control"
+          value={form.numeroEmpenho}
+          onChange={handleChange}
+          placeholder="Número do Empenho"
+          required
+          disabled={isLoading}
+        />
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="dataEmpenho" className="form-label">Data do Empenho</label>
+        <input
+          type="date"
+          id="dataEmpenho"
+          name="dataEmpenho"
+          className="form-control"
+          value={form.dataEmpenho}
+          onChange={handleChange}
+          required
+          disabled={isLoading}
+        />
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="valorEmpenhado" className="form-label">Valor Empenhado</label>
+        <input
+          type="number"
+          step="0.01"
+          id="valorEmpenhado"
+          name="valorEmpenhado"
+          className="form-control"
+          value={form.valorEmpenhado}
+          onChange={handleChange}
+          placeholder="Valor Empenhado"
+          required
+          disabled={isLoading}
+        />
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="despesa" className="form-label">Despesa Relacionada</label>
+        <select
+          id="despesa"
+          name="despesa"
+          className="form-select"
+          value={form.despesa}
+          onChange={handleChange}
+          required
+          disabled={isLoading}
+        >
+          <option value="">Selecione uma Despesa</option>
+          {despesas.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.numeroProtocolo} - {d.tipoDespesa}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <button type="submit" className="btn btn-primary" disabled={isLoading || status === 'loading'}>
         {status === 'loading' ? 'Salvando...' : 'Salvar Empenho'}
       </button>
     </form>

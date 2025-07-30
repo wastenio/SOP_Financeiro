@@ -2,16 +2,29 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../features/auth/authSlice';
 
+const NavItem = ({ to, children }) => (
+  <li className="nav-item">
+    <NavLink 
+      to={to} 
+      className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+    >
+      {children}
+    </NavLink>
+  </li>
+);
+
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    await dispatch(logout());
     navigate('/login');
   };
+
+  const displayName = user?.nome || user?.email || 'Usuário';
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
@@ -34,49 +47,33 @@ const Navbar = () => {
 
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <NavLink to="/" className="nav-link" end>
-                Home
-              </NavLink>
-            </li>
+            <NavItem to="/">Home</NavItem>
 
             {isAuthenticated && (
               <>
-                <li className="nav-item">
-                  <NavLink to="/despesas" className="nav-link">
-                    Despesas
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink to="/empenhos" className="nav-link">
-                    Empenhos
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink to="/pagamentos" className="nav-link">
-                    Pagamentos
-                  </NavLink>
-                </li>
+                <NavItem to="/despesas">Despesas</NavItem>
+                <NavItem to="/empenhos">Empenhos</NavItem>
+                <NavItem to="/pagamentos">Pagamentos</NavItem>
               </>
             )}
 
             {isAuthenticated ? (
               <>
                 <li className="nav-item d-flex align-items-center mx-2 text-white">
-                  Olá, {user?.nome || user?.email}
+                  Olá, {displayName}
                 </li>
                 <li className="nav-item">
-                  <button onClick={handleLogout} className="btn btn-outline-light">
+                  <button
+                    onClick={handleLogout}
+                    className="btn btn-outline-light"
+                    type="button"
+                  >
                     Sair
                   </button>
                 </li>
               </>
             ) : (
-              <li className="nav-item">
-                <NavLink to="/login" className="nav-link">
-                  Login
-                </NavLink>
-              </li>
+              <NavItem to="/login">Login</NavItem>
             )}
           </ul>
         </div>

@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addPagamento, fetchPagamentos } from './pagamentoSlice';
-import axios from 'axios';
+import api from '../../api';
+  // usar axios customizado
 
 const PagamentoForm = () => {
   const dispatch = useDispatch();
-  const { status, error } = useSelector((state) => state.pagamentos);
+  const { addStatus, addError } = useSelector((state) => ({
+    addStatus: state.pagamentos.addStatus,
+    addError: state.pagamentos.addError,
+  }));
 
   const [empenhos, setEmpenhos] = useState([]);
   const [form, setForm] = useState({
@@ -20,7 +24,7 @@ const PagamentoForm = () => {
   useEffect(() => {
     const fetchEmpenhos = async () => {
       try {
-        const res = await axios.get('http://localhost:8080/api/empenhos');
+        const res = await api.get('/empenhos');
         setEmpenhos(res.data);
       } catch (err) {
         console.error('Erro ao carregar empenhos:', err);
@@ -37,10 +41,14 @@ const PagamentoForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccessMsg('');
+    if (!form.numeroPagamento || !form.dataPagamento || !form.valorPago || !form.empenho) {
+      return; // poderia exibir mensagem de erro aqui também
+    }
+
     const payload = {
       ...form,
       valorPago: parseFloat(form.valorPago),
-      empenho: { id: parseInt(form.empenho, 10) },
+      empenho: { id: parseInt(form.empenho, 10) }, // confirmar formato esperado
     };
 
     try {
@@ -56,59 +64,83 @@ const PagamentoForm = () => {
         dispatch(fetchPagamentos());
       }
     } catch {
-      // Erro já tratado no slice, não precisa fazer nada aqui
+      // erro já tratado no slice
     }
   };
 
-  const isLoading = status === 'loading';
+  const isLoading = addStatus === 'loading';
 
   return (
     <form onSubmit={handleSubmit} style={{ marginBottom: '1rem' }}>
-      {error && <div className="alert alert-danger">{error}</div>}
+      {addError && <div className="alert alert-danger">{addError}</div>}
       {successMsg && <div className="alert alert-success">{successMsg}</div>}
 
-      <input
-        type="text"
-        name="numeroPagamento"
-        value={form.numeroPagamento}
-        onChange={handleChange}
-        placeholder="Número do Pagamento"
-        required
-        disabled={isLoading}
-      />
-      <input
-        type="date"
-        name="dataPagamento"
-        value={form.dataPagamento}
-        onChange={handleChange}
-        required
-        disabled={isLoading}
-      />
-      <input
-        type="number"
-        step="0.01"
-        name="valorPago"
-        value={form.valorPago}
-        onChange={handleChange}
-        placeholder="Valor Pago"
-        required
-        disabled={isLoading}
-      />
-      <select
-        name="empenho"
-        value={form.empenho}
-        onChange={handleChange}
-        required
-        disabled={isLoading}
-      >
-        <option value="">Selecione um Empenho</option>
-        {empenhos.map((e) => (
-          <option key={e.id} value={e.id}>
-            {e.numeroEmpenho} - R$ {e.valorEmpenhado}
-          </option>
-        ))}
-      </select>
-      <button type="submit" disabled={isLoading}>
+      <div className="mb-3">
+        <label htmlFor="numeroPagamento" className="form-label">Número do Pagamento</label>
+        <input
+          id="numeroPagamento"
+          type="text"
+          name="numeroPagamento"
+          value={form.numeroPagamento}
+          onChange={handleChange}
+          className="form-control"
+          placeholder="Número do Pagamento"
+          required
+          disabled={isLoading}
+        />
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="dataPagamento" className="form-label">Data do Pagamento</label>
+        <input
+          id="dataPagamento"
+          type="date"
+          name="dataPagamento"
+          value={form.dataPagamento}
+          onChange={handleChange}
+          className="form-control"
+          required
+          disabled={isLoading}
+        />
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="valorPago" className="form-label">Valor Pago</label>
+        <input
+          id="valorPago"
+          type="number"
+          step="0.01"
+          name="valorPago"
+          value={form.valorPago}
+          onChange={handleChange}
+          className="form-control"
+          placeholder="Valor Pago"
+          required
+          disabled={isLoading}
+        />
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="empenho" className="form-label">Empenho</label>
+        <select
+          id="empenho"
+          name="empenho"
+          value={form.empenho}
+          onChange={handleChange}
+          className="form-select"
+          required
+          disabled={isLoading}
+        >
+          <option value="">Selecione um Empenho</option>
+          {empenhos.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.numeroEmpenho} - R$ {Number(e.valorEmpenhado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <button type="submit" className="btn btn-primary" disabled={isLoading}>
         {isLoading ? 'Salvando...' : 'Salvar Pagamento'}
       </button>
     </form>

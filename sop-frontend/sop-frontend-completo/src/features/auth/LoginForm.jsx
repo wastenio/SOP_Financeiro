@@ -1,4 +1,3 @@
-// src/features/auth/LoginForm.jsx
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from './authSlice';
@@ -14,8 +13,11 @@ const LoginForm = ({ onLoginSuccess }) => {
     setError(null);
     try {
       const response = await api.post('/auth/login', data);
-      const token = response.data.token;
-      dispatch(loginSuccess(token));
+      const { token, user } = response.data; // espera que a API retorne { token, user }
+
+      // Dispara a action passando token e user
+      dispatch(loginSuccess({ token, user }));
+
       onLoginSuccess();
     } catch (err) {
       setError('Usuário ou senha inválidos');
@@ -28,15 +30,17 @@ const LoginForm = ({ onLoginSuccess }) => {
 
       <div className="mb-3">
         <label>Email</label>
-        <input type="email" className="form-control" {...register('email')} />
+        <input type="email" className="form-control" {...register('email', { required: true })} />
       </div>
 
       <div className="mb-3">
         <label>Senha</label>
-        <input type="password" className="form-control" {...register('password')} />
+        <input type="password" className="form-control" {...register('password', { required: true })} />
       </div>
 
-      <button type="submit" className="btn btn-primary">Entrar</button>
+      <button type="submit" className="btn btn-primary">
+        Entrar
+      </button>
     </form>
   );
 };

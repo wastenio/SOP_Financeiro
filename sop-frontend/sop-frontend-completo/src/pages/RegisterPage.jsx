@@ -1,103 +1,112 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import { useState } from 'react';
+
+const schema = yup.object().shape({
+  userName: yup.string().required('Usuário é obrigatório'),
+  email: yup.string().email('E-mail inválido').required('E-mail é obrigatório'),
+  password: yup.string().min(6, 'Senha deve ter ao menos 6 caracteres').required('Senha é obrigatória'),
+  confirmPassword: yup.string()
+    .oneOf([yup.ref('password'), null], 'As senhas devem coincidir')
+    .required('Confirmação da senha é obrigatória'),
+});
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const [submitError, setSubmitError] = useState(null);
+  const [submitSuccess, setSubmitSuccess] = useState(null);
 
-  const [form, setForm] = useState({
-    userName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+    resolver: yupResolver(schema),
   });
 
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = e => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-
-    if (form.password !== form.confirmPassword) {
-      setError('As senhas não coincidem.');
-      return;
-    }
-
-    setError(null);
-    setLoading(true);
+  const onSubmit = async (data) => {
+    setSubmitError(null);
+    setSubmitSuccess(null);
 
     try {
-      const { userName, email, password } = form;
+      const { userName, email, password } = data;
       await api.post('/usuario/register', { userName, email, password });
-      alert('Cadastro realizado com sucesso! Faça login.');
-      navigate('/login');
+      setSubmitSuccess('Cadastro realizado com sucesso! Você será redirecionado para login.');
+      setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
-      setError(err.response?.data || 'Erro ao cadastrar usuário');
-    } finally {
-      setLoading(false);
+      setSubmitError(err.response?.data || 'Erro ao cadastrar usuário');
     }
   };
 
   return (
     <div style={{ maxWidth: 400, margin: 'auto', padding: 20 }}>
       <h2>Cadastro de Usuário</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="userName"
-          placeholder="Usuário"
-          value={form.userName}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', marginBottom: 10, padding: 8 }}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="E-mail"
-          value={form.email}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', marginBottom: 10, padding: 8 }}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Senha"
-          value={form.password}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', marginBottom: 10, padding: 8 }}
-        />
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirme a senha"
-          value={form.confirmPassword}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', marginBottom: 10, padding: 8 }}
-        />
+      {submitError && <p style={{ color: 'red' }}>{submitError}</p>}
+      {submitSuccess && <p style={{ color: 'green' }}>{submitSuccess}</p>}
+
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div style={{ marginBottom: 10 }}>
+          <label htmlFor="userName">Usuário</label>
+          <input
+            id="userName"
+            type="text"
+            {...register('userName')}
+            style={{ width: '100%', padding: 8 }}
+            disabled={isSubmitting}
+          />
+          <p style={{ color: 'red' }}>{errors.userName?.message}</p>
+        </div>
+
+        <div style={{ marginBottom: 10 }}>
+          <label htmlFor="email">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            {...register('email')}
+            style={{ width: '100%', padding: 8 }}
+            disabled={isSubmitting}
+          />
+          <p style={{ color: 'red' }}>{errors.email?.message}</p>
+        </div>
+
+        <div style={{ marginBottom: 10 }}>
+          <label htmlFor="password">Senha</label>
+          <input
+            id="password"
+            type="password"
+            {...register('password')}
+            style={{ width: '100%', padding: 8 }}
+            disabled={isSubmitting}
+          />
+          <p style={{ color: 'red' }}>{errors.password?.message}</p>
+        </div>
+
+        <div style={{ marginBottom: 10 }}>
+          <label htmlFor="confirmPassword">Confirme a senha</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            {...register('confirmPassword')}
+            style={{ width: '100%', padding: 8 }}
+            disabled={isSubmitting}
+          />
+          <p style={{ color: 'red' }}>{errors.confirmPassword?.message}</p>
+        </div>
+
         <button
           type="submit"
-          disabled={loading}
+          disabled={isSubmitting}
           style={{
             width: '100%',
             padding: 10,
             backgroundColor: '#007bff',
             color: '#fff',
             border: 'none',
-            cursor: loading ? 'not-allowed' : 'pointer',
+            cursor: isSubmitting ? 'not-allowed' : 'pointer',
             borderRadius: 4,
           }}
         >
-          {loading ? 'Cadastrando...' : 'Cadastrar'}
+          {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
         </button>
       </form>
     </div>

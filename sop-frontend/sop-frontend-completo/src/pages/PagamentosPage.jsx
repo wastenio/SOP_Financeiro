@@ -1,10 +1,26 @@
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import PagamentoForm from '../features/pagamentos/PagamentoForm';
 import PagamentoList from '../features/pagamentos/PagamentoList';
-import { useSelector } from 'react-redux';
+import { fetchPagamentos } from '../features/pagamentos/pagamentoSlice';
+import { toast } from 'react-toastify';
 
 const PagamentosPage = () => {
-  const { status, error } = useSelector((state) => state.pagamentos);
+  const dispatch = useDispatch();
+  const { items: pagamentos, status, error } = useSelector((state) => state.pagamentos);
   const isLoading = status === 'loading';
+
+  useEffect(() => {
+    if (status === 'idle') {
+      dispatch(fetchPagamentos());
+    }
+  }, [dispatch, status]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   return (
     <div className="container my-5">
@@ -12,7 +28,7 @@ const PagamentosPage = () => {
 
       {isLoading && (
         <div className="text-center my-3">
-          <div className="spinner-border text-primary" role="status" />
+          <div className="spinner-border text-primary" role="status" aria-label="Carregando pagamentos" />
           <span className="ms-2">Carregando pagamentos...</span>
         </div>
       )}
@@ -37,7 +53,11 @@ const PagamentosPage = () => {
           <div className="card shadow-sm h-100">
             <div className="card-body">
               <h5 className="card-title">Pagamentos Cadastrados</h5>
-              <PagamentoList isLoading={isLoading} error={error} />
+              {pagamentos.length === 0 && !isLoading ? (
+                <p className="text-center">Nenhum pagamento cadastrado.</p>
+              ) : (
+                <PagamentoList pagamentos={pagamentos} isLoading={isLoading} error={error} />
+              )}
             </div>
           </div>
         </div>
